@@ -12,23 +12,68 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ApiClient {
 
-    private final String baseUrl;
+    private String baseUrl;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
     public ApiClient() {
-        this("http://localhost:8080");
+        this(resolveDefaultBackendUrl());
     }
 
     public ApiClient(String baseUrl) {
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl != null ? baseUrl : "http://localhost:8081";
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
+                .connectTimeout(Duration.ofSeconds(6))
                 .build();
         this.objectMapper = new ObjectMapper();
+    }
+
+    private static String resolveDefaultBackendUrl() {
+        String sysProp = System.getProperty("blackbox.backend.url");
+        if (sysProp != null && !sysProp.isBlank()) return sysProp;
+        String env = System.getenv("BLACKBOX_BACKEND_URL");
+        if (env != null && !env.isBlank()) return env;
+        return "http://localhost:8081";
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public CompletableFuture<Boolean> checkHealth() {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl + "/actuator/health"))
+                .timeout(Duration.ofSeconds(2))
+                .GET()
+                .build();
+        return httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .thenApply(res -> res.statusCode() == 200)
+                .exceptionally(ex -> {
+                    // Try fallback port 8080 if 8081 was unreachable
+                    if (baseUrl.contains("8081")) {
+                        try {
+                            HttpRequest fallbackReq = HttpRequest.newBuilder()
+                                    .uri(URI.create("http://localhost:8080/actuator/health"))
+                                    .timeout(Duration.ofSeconds(1))
+                                    .GET()
+                                    .build();
+                            HttpResponse<String> fbRes = httpClient.send(fallbackReq, HttpResponse.BodyHandlers.ofString());
+                            if (fbRes.statusCode() == 200) {
+                                this.baseUrl = "http://localhost:8080";
+                                return true;
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                    return false;
+                });
     }
 
     public CompletableFuture<List<AgentModel>> getAgents() {
@@ -118,6 +163,15 @@ public class ApiClient {
                 .thenApply(res -> parseJson(res.body(), new TypeReference<List<AgentEventModel>>() {}));
     }
 
+    public CompletableFuture<List<AgentEventModel>> getExecutionSources(String executionId) {
+        return getExecutionTimeline(executionId).thenApply(events ->
+                events.stream()
+                        .filter(e -> "SOURCE_REFERENCED".equalsIgnoreCase(e.getEventType()) ||
+                                (e.getEvidenceReference() != null && (e.getEvidenceReference().startsWith("http://") || e.getEvidenceReference().startsWith("https://"))))
+                        .collect(Collectors.toList())
+        );
+    }
+
     public CompletableFuture<IntegrityResultModel> verifyIntegrity(String executionId) {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl + "/api/executions/" + executionId + "/verify-integrity"))
@@ -192,4 +246,3 @@ public class ApiClient {
         }
     }
 }
-

@@ -3,8 +3,10 @@ package com.example.blackbox.enums;
 public enum EventType {
     TASK_STARTED,
     CONTEXT_CAPTURED,
+    PLAN_FORMULATED,
     ACTION_BOUNDARY,
     POLICY_EVALUATION,
+    SOURCE_REFERENCED,
     TOOL_INVOCATION,
     TOOL_RESULT,
     STATE_CHANGE,
@@ -12,7 +14,7 @@ public enum EventType {
     DELEGATION_COMPLETED,
     RETRY_ATTEMPT,
     ERROR_OCCURRED,
+    SYNTHESIS_GENERATED,
     TASK_COMPLETED,
     TASK_FAILED
 }
-

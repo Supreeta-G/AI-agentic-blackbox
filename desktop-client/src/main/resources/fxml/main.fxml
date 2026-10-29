@@ -7,41 +7,45 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.example.blackbox.client.controller.MainController"
-            prefHeight="880.0" prefWidth="1320.0"
+            prefHeight="900.0" prefWidth="1380.0"
             stylesheets="@../css/dark-theme.css">
 
     <!-- TOP HEADER -->
     <top>
         <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="app-header">
             <VBox spacing="2.0">
-                <Label text="AI AGENT BLACK BOX" styleClass="header-title" />
-                <Label text="Flight Recorder for Autonomous Software Agents — Observable Telemetry, Multi-Agent Delegation &amp; SHA-256 Audit" styleClass="header-subtitle" />
+                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                    <Label text="AI AGENT BLACK BOX" styleClass="header-title" />
+                    <Label text="v2.5 PRO" styleClass="header-version-pill" />
+                </HBox>
+                <Label text="Autonomous Agent Flight Recorder — Correlated Evidence, Real-Time Web Provenance &amp; SHA-256 Hash Chain Integrity" styleClass="header-subtitle" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblBackendStatus" text="● ONLINE (http://localhost:8080)" styleClass="status-badge" />
+            <Label fx:id="lblBackendStatus" text="● ONLINE (http://localhost:8081)" styleClass="status-badge" />
             <Button fx:id="btnRefresh" text="↻ Refresh All" styleClass="btn-secondary" onAction="#handleRefreshAll" />
         </HBox>
     </top>
 
     <!-- LEFT SIDEBAR -->
     <left>
-        <VBox prefWidth="240.0" spacing="6.0" styleClass="sidebar">
-            <Label text="NAVIGATION" styleClass="sidebar-title" />
+        <VBox prefWidth="250.0" spacing="6.0" styleClass="sidebar">
+            <Label text="FLIGHT RECORDER" styleClass="sidebar-title" />
             <Button fx:id="btnNavDashboard" text="📊 Dashboard" styleClass="nav-button, nav-button-active" maxWidth="Infinity" onAction="#showDashboard" />
-            <Button fx:id="btnNavAgents" text="🤖 Agents" styleClass="nav-button" maxWidth="Infinity" onAction="#showAgents" />
-            <Button fx:id="btnNavTasks" text="📋 Tasks &amp; Launch" styleClass="nav-button" maxWidth="Infinity" onAction="#showTasks" />
+            <Button fx:id="btnNavAgents" text="🤖 Agents Directory" styleClass="nav-button" maxWidth="Infinity" onAction="#showAgents" />
+            <Button fx:id="btnNavTasks" text="📋 Tasks &amp; Live Launch" styleClass="nav-button" maxWidth="Infinity" onAction="#showTasks" />
             <Button fx:id="btnNavTimeline" text="⏱ Execution Timeline" styleClass="nav-button" maxWidth="Infinity" onAction="#showTimeline" />
-            <Button fx:id="btnNavGraph" text="🕸 Execution Graph" styleClass="nav-button" maxWidth="Infinity" onAction="#showGraph" />
-            <Button fx:id="btnNavEvidence" text="🔍 Evidence Inspector" styleClass="nav-button" maxWidth="Infinity" onAction="#showEvidence" />
-            <Button fx:id="btnNavIntegrity" text="🔒 Integrity Verification" styleClass="nav-button" maxWidth="Infinity" onAction="#showIntegrity" />
-            <Button fx:id="btnNavComparison" text="⚖ Execution Comparison" styleClass="nav-button" maxWidth="Infinity" onAction="#showComparison" />
-            <Button fx:id="btnNavStats" text="📈 Statistics &amp; Charts" styleClass="nav-button" maxWidth="Infinity" onAction="#showStats" />
-            <Button fx:id="btnNavDemo" text="⚡ Demo Controls" styleClass="nav-button" maxWidth="Infinity" onAction="#showDemo" />
+            <Button fx:id="btnNavSources" text="🌐 Sources &amp; Referrals" styleClass="nav-button" maxWidth="Infinity" onAction="#showSources" />
+            <Button fx:id="btnNavGraph" text="🕸 Execution Flow Graph" styleClass="nav-button" maxWidth="Infinity" onAction="#showGraph" />
+            <Button fx:id="btnNavEvidence" text="🔍 Forensic Evidence" styleClass="nav-button" maxWidth="Infinity" onAction="#showEvidence" />
+            <Button fx:id="btnNavIntegrity" text="🔒 SHA-256 Verification" styleClass="nav-button" maxWidth="Infinity" onAction="#showIntegrity" />
+            <Button fx:id="btnNavComparison" text="⚖ Flight Comparison" styleClass="nav-button" maxWidth="Infinity" onAction="#showComparison" />
+            <Button fx:id="btnNavStats" text="📈 Analytics &amp; Charts" styleClass="nav-button" maxWidth="Infinity" onAction="#showStats" />
+            <Button fx:id="btnNavDemo" text="⚡ Interactive Scenarios" styleClass="nav-button" maxWidth="Infinity" onAction="#showDemo" />
             
             <Region VBox.vgrow="ALWAYS" />
-            <VBox spacing="4.0" style="-fx-background-color: #090d16; -fx-padding: 10px; -fx-background-radius: 6px;">
-                <Label text="CRITICAL BOUNDARY" style="-fx-text-fill: #38bdf8; -fx-font-size: 11px; -fx-font-weight: bold;" />
-                <Label text="Captures observable inputs, tools, policies &amp; evidence. Model chain-of-thought is labelled as model explanation, not verified proof." wrapText="true" style="-fx-text-fill: #64748b; -fx-font-size: 10px;" />
+            <VBox spacing="4.0" styleClass="sidebar-critical-box">
+                <Label text="OBSERVABLE BOUNDARY" styleClass="sidebar-box-title" />
+                <Label text="Every external source, tool invocation, and policy gate is cryptographically sealed into the SHA-256 flight log with OpenTelemetry W3C TraceContext." wrapText="true" styleClass="sidebar-box-text" />
             </VBox>
         </VBox>
     </left>
@@ -52,7 +56,7 @@
 
             <!-- 1. DASHBOARD VIEW -->
             <VBox fx:id="viewDashboard" spacing="12.0" visible="true">
-                <Label text="Black Box Operational Overview &amp; Live Telemetry" styleClass="section-title" />
+                <Label text="Flight Recorder Operational Overview &amp; Live Telemetry" styleClass="section-title" />
                 
                 <!-- Metric Cards -->
                 <GridPane hgap="12.0" vgap="12.0">
@@ -64,49 +68,49 @@
                     </columnConstraints>
                     
                     <VBox GridPane.columnIndex="0" styleClass="metric-card">
-                        <Label text="TOTAL EXECUTIONS" styleClass="metric-title" />
+                        <Label text="RECORDED FLIGHT RUNS" styleClass="metric-title" />
                         <Label fx:id="lblMetricTotalExecutions" text="0" styleClass="metric-value-accent" />
-                        <Label text="Recorded flight runs" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                        <Label text="Complete agent task executions" styleClass="metric-subtext" />
                     </VBox>
                     <VBox GridPane.columnIndex="1" styleClass="metric-card">
-                        <Label text="SUCCESSFUL / FAILED" styleClass="metric-title" />
+                        <Label text="SUCCESS / FAILED RATIO" styleClass="metric-title" />
                         <HBox spacing="8.0" alignment="BASELINE_LEFT">
                             <Label fx:id="lblMetricSuccess" text="0" styleClass="metric-value-success" />
                             <Label text="/" style="-fx-text-fill: #64748b; -fx-font-size: 18px;" />
                             <Label fx:id="lblMetricFailed" text="0" styleClass="metric-value-danger" />
                         </HBox>
-                        <Label text="Execution status ratio" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                        <Label text="Nominal vs Intercepted flights" styleClass="metric-subtext" />
                     </VBox>
                     <VBox GridPane.columnIndex="2" styleClass="metric-card">
-                        <Label text="TOTAL BLACK BOX EVENTS" styleClass="metric-title" />
+                        <Label text="CHAINED AUDIT EVENTS" styleClass="metric-title" />
                         <Label fx:id="lblMetricTotalEvents" text="0" styleClass="metric-value" />
-                        <Label text="Chained audit events" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                        <Label text="SHA-256 sealed blocks" styleClass="metric-subtext" />
                     </VBox>
                     <VBox GridPane.columnIndex="3" styleClass="metric-card">
-                        <Label text="INTEGRITY VIOLATIONS" styleClass="metric-title" />
+                        <Label text="INTEGRITY ANOMALIES" styleClass="metric-title" />
                         <Label fx:id="lblMetricIntegrityViolations" text="0" styleClass="metric-value-danger" />
-                        <Label text="SHA-256 chain anomalies" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                        <Label text="Tamper detection assertions" styleClass="metric-subtext" />
                     </VBox>
                 </GridPane>
 
                 <!-- Middle: Recent Executions + Activity Chart -->
                 <HBox spacing="12.0" prefHeight="260.0">
                     <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                        <Label text="Recent Recorded Flight Executions" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                        <Label text="Recent Recorded Flight Executions" styleClass="sub-heading" />
                         <TableView fx:id="tblDashboardExecutions" VBox.vgrow="ALWAYS">
                             <columns>
                                 <TableColumn fx:id="colDashExecId" text="Execution ID" prefWidth="170.0" />
                                 <TableColumn fx:id="colDashExecStatus" text="Status" prefWidth="100.0" />
-                                <TableColumn fx:id="colDashExecDuration" text="Duration (ms)" prefWidth="100.0" />
+                                <TableColumn fx:id="colDashExecDuration" text="Latency (ms)" prefWidth="100.0" />
                                 <TableColumn fx:id="colDashExecEvents" text="Events" prefWidth="75.0" />
-                                <TableColumn fx:id="colDashExecHash" text="Final SHA-256 Seal" prefWidth="200.0" />
+                                <TableColumn fx:id="colDashExecHash" text="Final SHA-256 Seal" prefWidth="220.0" />
                                 <TableColumn fx:id="colDashExecStarted" text="Timestamp" prefWidth="150.0" />
                             </columns>
                         </TableView>
                     </VBox>
 
                     <VBox spacing="6.0" prefWidth="440.0">
-                        <Label text="Execution Activity &amp; Event Volume" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                        <Label text="Execution Activity &amp; Event Volume" styleClass="sub-heading" />
                         <BarChart fx:id="chartActivity" VBox.vgrow="ALWAYS" legendVisible="false">
                             <xAxis>
                                 <CategoryAxis fx:id="axisActivityX" label="Flight ID" />
@@ -120,15 +124,15 @@
 
                 <!-- Bottom: Recent Errors & Policy Interceptions -->
                 <VBox spacing="6.0" VBox.vgrow="ALWAYS">
-                    <Label text="Recent Errors, Retries &amp; Security Policy Interceptions" style="-fx-text-fill: #f87171; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                    <Label text="Security Policy Interceptions, Errors &amp; Automated Retries" style="-fx-text-fill: #f87171; -fx-font-weight: bold; -fx-font-size: 12px;" />
                     <TableView fx:id="tblRecentErrors" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn fx:id="colErrSeq" text="Seq" prefWidth="50.0" />
                             <TableColumn fx:id="colErrTime" text="Timestamp" prefWidth="150.0" />
-                            <TableColumn fx:id="colErrType" text="Event Type" prefWidth="150.0" />
+                            <TableColumn fx:id="colErrType" text="Event Type" prefWidth="160.0" />
                             <TableColumn fx:id="colErrExecId" text="Execution ID" prefWidth="180.0" />
                             <TableColumn fx:id="colErrStatus" text="Status" prefWidth="100.0" />
-                            <TableColumn fx:id="colErrDetails" text="Error / Violation Reason" prefWidth="420.0" />
+                            <TableColumn fx:id="colErrDetails" text="Error / Interception Details" prefWidth="420.0" />
                         </columns>
                     </TableView>
                 </VBox>
@@ -136,7 +140,7 @@
 
             <!-- 2. AGENTS VIEW -->
             <VBox fx:id="viewAgents" spacing="14.0" visible="false">
-                <Label text="Autonomous Agents Directory" styleClass="section-title" />
+                <Label text="Autonomous Software Agents Directory" styleClass="section-title" />
                 <HBox spacing="14.0" VBox.vgrow="ALWAYS">
                     <TableView fx:id="tblAgents" HBox.hgrow="ALWAYS">
                         <columns>
@@ -147,50 +151,69 @@
                             <TableColumn fx:id="colAgentCreated" text="Created" prefWidth="160.0" />
                         </columns>
                     </TableView>
-                    
-                    <VBox prefWidth="320.0" spacing="10.0" styleClass="metric-card">
+
+                    <VBox prefWidth="340.0" spacing="10.0" styleClass="metric-card">
                         <Label text="Register New Agent" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;" />
-                        <Label text="Agent Name:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
-                        <TextField fx:id="txtNewAgentName" promptText="e.g. ComplianceAuditorAgent" />
-                        <Label text="Role:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
+                        <Label text="Agent Name:" styleClass="form-label" />
+                        <TextField fx:id="txtNewAgentName" promptText="e.g. FlightTelemetryAuditor" />
+                        <Label text="Role Architecture:" styleClass="form-label" />
                         <ComboBox fx:id="cmbNewAgentRole" maxWidth="Infinity" />
-                        <Label text="Model Identifier:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
+                        <Label text="Model Identifier:" styleClass="form-label" />
                         <TextField fx:id="txtNewAgentModel" text="gpt-4o-mini" />
                         <Button text="Register Agent" styleClass="btn-primary" maxWidth="Infinity" onAction="#handleCreateAgent" />
                     </VBox>
                 </HBox>
             </VBox>
 
-            <!-- 3. TASKS & EXECUTION VIEW -->
+            <!-- 3. TASKS & LIVE LAUNCHPAD VIEW -->
             <VBox fx:id="viewTasks" spacing="14.0" visible="false">
-                <Label text="Task Management &amp; Flight Launchpad" styleClass="section-title" />
+                <Label text="Task Management &amp; Interactive Flight Launchpad" styleClass="section-title" />
                 <HBox spacing="14.0" VBox.vgrow="ALWAYS">
-                    <TableView fx:id="tblTasks" HBox.hgrow="ALWAYS">
-                        <columns>
-                            <TableColumn fx:id="colTaskTitle" text="Task Title" prefWidth="220.0" />
-                            <TableColumn fx:id="colTaskDesc" text="Description" prefWidth="320.0" />
-                            <TableColumn fx:id="colTaskStatus" text="Status" prefWidth="100.0" />
-                            <TableColumn fx:id="colTaskCreated" text="Created" prefWidth="160.0" />
-                        </columns>
-                    </TableView>
+                    <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                        <Label text="Registered Tasks" styleClass="sub-heading" />
+                        <TableView fx:id="tblTasks" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colTaskTitle" text="Task Title" prefWidth="220.0" />
+                                <TableColumn fx:id="colTaskDesc" text="Description / Prompt" prefWidth="320.0" />
+                                <TableColumn fx:id="colTaskStatus" text="Status" prefWidth="100.0" />
+                                <TableColumn fx:id="colTaskCreated" text="Created" prefWidth="160.0" />
+                            </columns>
+                        </TableView>
+                    </VBox>
 
-                    <VBox prefWidth="360.0" spacing="10.0" styleClass="metric-card">
-                        <Label text="Launch Task Execution" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;" />
-                        <Label text="Selected Task:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
-                        <Label fx:id="lblSelectedTaskTitle" text="[Select a task from table]" wrapText="true" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold;" />
+                    <VBox prefWidth="420.0" spacing="10.0" styleClass="metric-card">
+                        <Label text="Launch Custom Agent Flight" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;" />
                         
-                        <Label text="Execution Scenario:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
+                        <!-- Quick Templates -->
+                        <Label text="Quick Presets &amp; Real-Time Search Scenarios:" styleClass="form-label" />
+                        <FlowPane hgap="6.0" vgap="6.0">
+                            <Button text="🌐 SHA-256 Cryptography" styleClass="btn-preset" onAction="#handlePresetSha256" />
+                            <Button text="✈️ Flight FDR Telemetry" styleClass="btn-preset" onAction="#handlePresetFlightTelemetry" />
+                            <Button text="🤖 Spring AI Architecture" styleClass="btn-preset" onAction="#handlePresetSpringAi" />
+                            <Button text="🛡️ Policy Violation Test" styleClass="btn-preset" onAction="#handlePresetPolicyDenial" />
+                            <Button text="⚡ Retry &amp; Recovery" styleClass="btn-preset" onAction="#handlePresetRetry" />
+                        </FlowPane>
+                        
+                        <Separator styleClass="app-separator" />
+
+                        <Label text="Task Title:" styleClass="form-label" />
+                        <TextField fx:id="txtNewTaskTitle" promptText="Enter task title..." />
+                        
+                        <Label text="Prompt &amp; Real-time Query:" styleClass="form-label" />
+                        <TextArea fx:id="txtNewTaskDesc" promptText="What should the agent investigate, search, or calculate? (e.g. SHA-256 standard specifications, FAA black box telemetry, Spring AI...)" prefRowCount="3" wrapText="true" />
+                        
+                        <Label text="Execution Scenario:" styleClass="form-label" />
                         <ComboBox fx:id="cmbScenario" maxWidth="Infinity" />
                         
-                        <Button fx:id="btnLaunchTask" text="▶ Launch Black Box Execution" styleClass="btn-success" maxWidth="Infinity" onAction="#handleLaunchExecution" />
-                        
-                        <Separator style="-fx-background-color: #1e293b;" />
-                        
-                        <Label text="Create New Task" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;" />
-                        <TextField fx:id="txtNewTaskTitle" promptText="Task title..." />
-                        <TextArea fx:id="txtNewTaskDesc" promptText="Task description &amp; instructions..." prefRowCount="3" wrapText="true" />
+                        <Label text="Agent:" styleClass="form-label" />
                         <ComboBox fx:id="cmbTaskAgent" maxWidth="Infinity" promptText="Select Agent..." />
-                        <Button text="Create Task" styleClass="btn-primary" maxWidth="Infinity" onAction="#handleCreateTask" />
+                        
+                        <CheckBox fx:id="chkRealtimeSearch" text="🌐 Search Live Internet Sources (Wikipedia &amp; NIST)" selected="true" style="-fx-text-fill: #38bdf8; -fx-font-size: 11px; -fx-font-weight: bold;" />
+
+                        <Button fx:id="btnLaunchTask" text="▶ LAUNCH AGENT FLIGHT" styleClass="btn-success" maxWidth="Infinity" onAction="#handleLaunchExecution" />
+
+                        <!-- Status Label -->
+                        <Label fx:id="lblLaunchFeedback" text="Ready to execute task." wrapText="true" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;" />
                     </VBox>
                 </HBox>
             </VBox>
@@ -200,12 +223,12 @@
                 <HBox spacing="12.0" alignment="CENTER_LEFT">
                     <Label text="Chronological Flight Timeline" styleClass="section-title" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Label text="Select Execution:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
+                    <Label text="Select Execution:" styleClass="form-label" />
                     <ComboBox fx:id="cmbTimelineExecution" prefWidth="280.0" />
                     <Button text="Load Timeline" styleClass="btn-primary" onAction="#handleLoadTimeline" />
                 </HBox>
 
-                <HBox spacing="12.0" alignment="CENTER_LEFT" style="-fx-background-color: #0f172a; -fx-padding: 8px 12px; -fx-background-radius: 6px;">
+                <HBox spacing="12.0" alignment="CENTER_LEFT" styleClass="filter-bar">
                     <Label text="Filter Event Type:" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;" />
                     <ComboBox fx:id="cmbFilterEventType" prefWidth="180.0" />
                     <Label text="Status:" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;" />
@@ -218,53 +241,106 @@
                         <TableColumn fx:id="colTimeSeq" text="Seq" prefWidth="50.0" />
                         <TableColumn fx:id="colTimeType" text="Event Type" prefWidth="160.0" />
                         <TableColumn fx:id="colTimeDesc" text="Description" prefWidth="300.0" />
-                        <TableColumn fx:id="colTimeTool" text="Tool Name" prefWidth="130.0" />
+                        <TableColumn fx:id="colTimeTool" text="Tool / Subsystem" prefWidth="140.0" />
                         <TableColumn fx:id="colTimeStatus" text="Status" prefWidth="90.0" />
                         <TableColumn fx:id="colTimeDuration" text="Latency (ms)" prefWidth="90.0" />
-                        <TableColumn fx:id="colTimePrevHash" text="Previous Hash" prefWidth="140.0" />
-                        <TableColumn fx:id="colTimeCurrHash" text="Current Hash" prefWidth="140.0" />
+                        <TableColumn fx:id="colTimePrevHash" text="Previous SHA-256" prefWidth="140.0" />
+                        <TableColumn fx:id="colTimeCurrHash" text="Current SHA-256" prefWidth="140.0" />
                     </columns>
                 </TableView>
 
-                <VBox spacing="4.0" style="-fx-background-color: #090d16; -fx-padding: 10px; -fx-background-radius: 6px;">
-                    <Label text="Selected Event Details:" style="-fx-text-fill: #38bdf8; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                <VBox spacing="4.0" styleClass="code-box-container">
+                    <Label text="Selected Event Details &amp; Payload:" style="-fx-text-fill: #38bdf8; -fx-font-size: 11px; -fx-font-weight: bold;" />
                     <TextArea fx:id="txtTimelineDetail" prefRowCount="3" editable="false" wrapText="true" styleClass="code-box" />
                 </VBox>
             </VBox>
 
-            <!-- 5. EXECUTION GRAPH (VISUAL DIAGRAM + HIERARCHY) -->
-            <VBox fx:id="viewGraph" spacing="12.0" visible="false">
+            <!-- 5. SOURCES & REFERRALS VIEW (BRAND NEW DEDICATED VIEW) -->
+            <VBox fx:id="viewSources" spacing="12.0" visible="false">
                 <HBox spacing="12.0" alignment="CENTER_LEFT">
-                    <Label text="Multi-Agent Execution Graph &amp; Delegation Visualizer" styleClass="section-title" />
+                    <VBox spacing="2.0">
+                        <Label text="Real-Time Sources, Referrals &amp; Evidence Provenance" styleClass="section-title" />
+                        <Label text="Tracks which external knowledge bases, live web APIs, and regulatory standards the agent consulted during task execution" styleClass="header-subtitle" />
+                    </VBox>
                     <Region HBox.hgrow="ALWAYS" />
-                    <Label text="Target Flight:" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
-                    <ComboBox fx:id="cmbGraphExecution" prefWidth="280.0" promptText="Select Execution..." />
-                    <Button text="🕸 Render Graph" styleClass="btn-primary" onAction="#handleRenderGraph" />
+                    <Label text="Target Flight:" styleClass="form-label" />
+                    <ComboBox fx:id="cmbSourcesExecution" prefWidth="280.0" promptText="Select Execution..." />
+                    <Button text="🌐 Inspect Sources" styleClass="btn-primary" onAction="#handleInspectSources" />
                 </HBox>
 
-                <!-- Interactive Visual Canvas & Inspector -->
-                <SplitPane dividerPositions="0.68" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                <!-- Source Metrics Banner -->
+                <GridPane hgap="12.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25.0" />
+                        <ColumnConstraints percentWidth="25.0" />
+                        <ColumnConstraints percentWidth="25.0" />
+                        <ColumnConstraints percentWidth="25.0" />
+                    </columnConstraints>
                     
-                    <!-- Left: Scrollable Visual Diagram Canvas -->
+                    <VBox GridPane.columnIndex="0" styleClass="metric-card">
+                        <Label text="TOTAL SOURCES CONSULTED" styleClass="metric-title" />
+                        <Label fx:id="lblSourcesTotalCount" text="0" styleClass="metric-value-accent" />
+                        <Label text="Cross-referenced evidence" styleClass="metric-subtext" />
+                    </VBox>
+                    <VBox GridPane.columnIndex="1" styleClass="metric-card">
+                        <Label text="LIVE WEB &amp; API CALLS" styleClass="metric-title" />
+                        <Label fx:id="lblSourcesLiveWebCount" text="0" styleClass="metric-value-success" />
+                        <Label text="Realtime external fetches" styleClass="metric-subtext" />
+                    </VBox>
+                    <VBox GridPane.columnIndex="2" styleClass="metric-card">
+                        <Label text="AVG RETRIEVAL LATENCY" styleClass="metric-title" />
+                        <Label fx:id="lblSourcesAvgLatency" text="0 ms" styleClass="metric-value" />
+                        <Label text="External query time" styleClass="metric-subtext" />
+                    </VBox>
+                    <VBox GridPane.columnIndex="3" styleClass="metric-card">
+                        <Label text="EVIDENCE INTEGRITY" styleClass="metric-title" />
+                        <Label fx:id="lblSourcesIntegrityStatus" text="VERIFIED" styleClass="metric-value-success" />
+                        <Label text="SHA-256 evidence digests" styleClass="metric-subtext" />
+                    </VBox>
+                </GridPane>
+
+                <!-- Scrollable Source Cards Container -->
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="graph-canvas-container">
+                    <VBox fx:id="boxSourcesList" spacing="14.0" style="-fx-padding: 16px;">
+                        <Label text="Select a flight execution above and click 'Inspect Sources' to examine all live sources and citations consulted by the agent." styleClass="empty-prompt-label" />
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+
+            <!-- 6. EXECUTION FLOW & AGENT ARCHITECTURE GRAPH -->
+            <VBox fx:id="viewGraph" spacing="12.0" visible="false">
+                <HBox spacing="12.0" alignment="CENTER_LEFT">
+                    <VBox spacing="2.0">
+                        <Label text="Agent Execution Flow &amp; Architecture Visualizer" styleClass="section-title" />
+                        <Label text="Step-by-step observable pipeline showing how the agent moves from prompt to real-time search, policy check, and cryptographic sealing" styleClass="header-subtitle" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label text="Target Flight:" styleClass="form-label" />
+                    <ComboBox fx:id="cmbGraphExecution" prefWidth="280.0" promptText="Select Execution..." />
+                    <Button text="🕸 Render Pipeline" styleClass="btn-primary" onAction="#handleRenderGraph" />
+                </HBox>
+
+                <!-- Split View: Pipeline Flow Canvas + Node Inspector -->
+                <SplitPane dividerPositions="0.65" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                    <!-- Left: Step-by-Step Flow Canvas -->
                     <ScrollPane fitToWidth="true" styleClass="graph-canvas-container">
-                        <VBox fx:id="boxGraphCanvas" spacing="20.0" style="-fx-padding: 24px;">
-                            <!-- Node cards will be dynamically populated here -->
-                            <Label text="Select an execution above and click 'Render Graph' to view the visual delegation graph." style="-fx-text-fill: #64748b; -fx-font-size: 13px;" />
+                        <VBox fx:id="boxGraphCanvas" spacing="14.0" style="-fx-padding: 20px;">
+                            <Label text="Select an execution above and click 'Render Pipeline' to visualize the agent's complete execution lifecycle." styleClass="empty-prompt-label" />
                         </VBox>
                     </ScrollPane>
 
-                    <!-- Right: Node Provenance Inspector & Tree Outline -->
-                    <VBox spacing="12.0" styleClass="metric-card">
-                        <Label text="Execution Provenance Inspector" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;" />
+                    <!-- Right: Stage Provenance Inspector & Hierarchy -->
+                    <VBox spacing="10.0" styleClass="metric-card">
+                        <Label text="Stage Provenance &amp; Telemetry Inspector" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 14px;" />
                         <TextArea fx:id="txtGraphNodeDetails" VBox.vgrow="ALWAYS" editable="false" wrapText="true" styleClass="code-box" />
 
-                        <Label text="Delegation Hierarchy Tree Outline:" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;" />
-                        <TreeView fx:id="treeExecutionGraph" prefHeight="160.0" />
+                        <Label text="Multi-Agent Delegation Tree:" styleClass="form-label" style="-fx-font-weight: bold;" />
+                        <TreeView fx:id="treeExecutionGraph" prefHeight="170.0" />
                     </VBox>
                 </SplitPane>
             </VBox>
 
-            <!-- 6. EVIDENCE INSPECTOR -->
+            <!-- 7. FORENSIC EVIDENCE INSPECTOR -->
             <VBox fx:id="viewEvidence" spacing="12.0" visible="false">
                 <HBox spacing="12.0" alignment="CENTER_LEFT">
                     <Label text="Forensic Evidence &amp; Cryptographic Inspector" styleClass="section-title" />
@@ -276,51 +352,51 @@
                 <SplitPane dividerPositions="0.35" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
                     <ListView fx:id="listEvidenceEvents" />
                     
-                    <VBox spacing="10.0" style="-fx-padding: 12px; -fx-background-color: #0f172a; -fx-background-radius: 8px;">
+                    <VBox spacing="10.0" styleClass="evidence-details-pane">
                         <Label text="Cryptographic Proof &amp; OpenTelemetry Telemetry" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 13px;" />
                         <GridPane vgap="6.0" hgap="10.0">
-                            <Label text="Event ID:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-text-fill: #94a3b8;" />
-                            <Label fx:id="lblEvId" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-text-fill: #f8fafc; -fx-font-family: monospace;" />
+                            <Label text="Event ID:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-label" />
+                            <Label fx:id="lblEvId" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="mono-value" />
                             
-                            <Label text="Trace ID (W3C):" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-text-fill: #94a3b8;" />
-                            <Label fx:id="lblEvTraceId" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-text-fill: #38bdf8; -fx-font-family: monospace;" />
+                            <Label text="Trace ID (W3C):" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="form-label" />
+                            <Label fx:id="lblEvTraceId" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" styleClass="mono-accent" />
                             
-                            <Label text="Span ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-text-fill: #94a3b8;" />
-                            <Label fx:id="lblEvSpanId" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-text-fill: #38bdf8; -fx-font-family: monospace;" />
+                            <Label text="Span ID:" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="form-label" />
+                            <Label fx:id="lblEvSpanId" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="mono-accent" />
                             
-                            <Label text="Previous Hash:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-text-fill: #94a3b8;" />
+                            <Label text="Previous Hash:" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="form-label" />
                             <Label fx:id="lblEvPrevHash" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-text-fill: #a78bfa; -fx-font-family: monospace;" />
                             
-                            <Label text="Current Hash:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-text-fill: #94a3b8;" />
+                            <Label text="Current Hash:" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="form-label" />
                             <Label fx:id="lblEvCurrHash" text="-" GridPane.columnIndex="1" GridPane.rowIndex="4" style="-fx-text-fill: #34d399; -fx-font-family: monospace;" />
                         </GridPane>
 
-                        <Label text="Sanitized Input / Arguments:" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 11px;" />
+                        <Label text="Sanitized Input / Arguments:" styleClass="sub-heading" />
                         <TextArea fx:id="txtEvInput" prefRowCount="3" editable="false" wrapText="true" styleClass="code-box" />
 
-                        <Label text="Sanitized Output / Result:" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 11px;" />
+                        <Label text="Sanitized Output / Evidence Result:" styleClass="sub-heading" />
                         <TextArea fx:id="txtEvOutput" prefRowCount="3" editable="false" wrapText="true" styleClass="code-box" />
 
-                        <Label text="Policy Decision &amp; Reason:" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 11px;" />
+                        <Label text="Policy Decision &amp; Interception Reason:" styleClass="sub-heading" />
                         <TextArea fx:id="txtEvPolicy" prefRowCount="2" editable="false" wrapText="true" styleClass="code-box" />
                     </VBox>
                 </SplitPane>
             </VBox>
 
-            <!-- 7. INTEGRITY VERIFICATION VIEW -->
+            <!-- 8. INTEGRITY VERIFICATION VIEW -->
             <VBox fx:id="viewIntegrity" spacing="14.0" visible="false">
                 <Label text="SHA-256 Tamper-Evident Hash Chain Verification" styleClass="section-title" />
                 
                 <HBox spacing="16.0" alignment="CENTER_LEFT" styleClass="metric-card">
-                    <Label text="Target Execution:" style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;" />
+                    <Label text="Target Execution:" styleClass="form-label" />
                     <ComboBox fx:id="cmbIntegrityExecution" prefWidth="320.0" />
                     <Button fx:id="btnRunVerification" text="🔒 VERIFY INTEGRITY" styleClass="btn-primary" onAction="#handleVerifyIntegrity" />
                     <Region HBox.hgrow="ALWAYS" />
-                    <Button text="⚠ Tamper Event (Dev Test)" styleClass="btn-danger" onAction="#handleTamperCurrentExecution" />
+                    <Button text="⚠ Tamper Event (Dev Demonstration)" styleClass="btn-danger" onAction="#handleTamperCurrentExecution" />
                 </HBox>
 
                 <!-- Status Banner -->
-                <VBox fx:id="boxIntegrityBanner" spacing="8.0" style="-fx-background-color: #131d31; -fx-padding: 18px; -fx-background-radius: 8px; -fx-border-color: #1e293b; -fx-border-radius: 8px;">
+                <VBox fx:id="boxIntegrityBanner" spacing="8.0" styleClass="integrity-banner">
                     <Label fx:id="lblIntegrityStatusText" text="SELECT AN EXECUTION AND CLICK 'VERIFY INTEGRITY'" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #94a3b8;" />
                     <Label fx:id="lblIntegrityReason" text="Verification checks: Genesis rule (64 zeros), sequential continuity, previous-hash equality, and recomputed SHA-256 digests." wrapText="true" style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px;" />
                 </VBox>
@@ -332,36 +408,36 @@
                         <ColumnConstraints percentWidth="70.0" />
                     </columnConstraints>
                     
-                    <Label text="Events In Chain Verified:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-text-fill: #94a3b8;" />
+                    <Label text="Events In Chain Verified:" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-label" />
                     <Label fx:id="lblIntegTotalEvents" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" style="-fx-text-fill: #f8fafc; -fx-font-weight: bold;" />
 
-                    <Label text="First Invalid Sequence:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-text-fill: #94a3b8;" />
+                    <Label text="First Invalid Sequence:" GridPane.columnIndex="0" GridPane.rowIndex="1" styleClass="form-label" />
                     <Label fx:id="lblIntegInvalidSeq" text="None (Chain Intact)" GridPane.columnIndex="1" GridPane.rowIndex="1" style="-fx-text-fill: #34d399; -fx-font-weight: bold;" />
 
-                    <Label text="Expected Hash:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-text-fill: #94a3b8;" />
-                    <Label fx:id="lblIntegExpectedHash" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-text-fill: #38bdf8; -fx-font-family: monospace;" />
+                    <Label text="Expected Hash:" GridPane.columnIndex="0" GridPane.rowIndex="2" styleClass="form-label" />
+                    <Label fx:id="lblIntegExpectedHash" text="-" GridPane.columnIndex="1" GridPane.rowIndex="2" styleClass="mono-accent" />
 
-                    <Label text="Actual Hash Detected:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-text-fill: #94a3b8;" />
+                    <Label text="Actual Hash Detected:" GridPane.columnIndex="0" GridPane.rowIndex="3" styleClass="form-label" />
                     <Label fx:id="lblIntegActualHash" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" style="-fx-text-fill: #f87171; -fx-font-family: monospace;" />
 
-                    <Label text="Downstream Broken Blocks:" GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-text-fill: #94a3b8;" />
+                    <Label text="Downstream Broken Blocks:" GridPane.columnIndex="0" GridPane.rowIndex="4" styleClass="form-label" />
                     <Label fx:id="lblIntegDownstreamBroken" text="0" GridPane.columnIndex="1" GridPane.rowIndex="4" style="-fx-text-fill: #cbd5e1;" />
                 </GridPane>
 
-                <VBox spacing="4.0" style="-fx-background-color: #090d16; -fx-padding: 10px; -fx-background-radius: 6px;">
+                <VBox spacing="4.0" styleClass="code-box-container">
                     <Label text="CRYPTOGRAPHIC CHAIN SPECIFICATION &amp; THREAT MODEL" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-font-size: 11px;" />
-                    <Label text="Block 1 starts with 64 zero characters genesis hash. Each subsequent block seals the previous block's SHA-256 digest. Modifying any payload field invalidates the target hash and all downstream blocks." wrapText="true" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" />
+                    <Label text="Block 1 starts with 64 zero characters genesis hash. Each subsequent block seals the previous block's SHA-256 digest. Modifying any payload field invalidates the target hash and all downstream blocks." wrapText="true" styleClass="sidebar-box-text" />
                 </VBox>
             </VBox>
 
-            <!-- 8. EXECUTION COMPARISON VIEW -->
+            <!-- 9. EXECUTION COMPARISON VIEW -->
             <VBox fx:id="viewComparison" spacing="14.0" visible="false">
                 <Label text="Side-by-Side Execution Comparison" styleClass="section-title" />
                 
                 <HBox spacing="16.0" alignment="CENTER_LEFT" styleClass="metric-card">
-                    <Label text="Execution 1:" style="-fx-text-fill: #94a3b8;" />
+                    <Label text="Execution 1:" styleClass="form-label" />
                     <ComboBox fx:id="cmbCompareExec1" prefWidth="260.0" />
-                    <Label text="Execution 2:" style="-fx-text-fill: #94a3b8;" />
+                    <Label text="Execution 2:" styleClass="form-label" />
                     <ComboBox fx:id="cmbCompareExec2" prefWidth="260.0" />
                     <Button text="⚖ Compare Executions" styleClass="btn-primary" onAction="#handleCompareExecutions" />
                 </HBox>
@@ -378,9 +454,9 @@
                 </HBox>
             </VBox>
 
-            <!-- 9. STATISTICS VIEW (REAL JAVAFX CHARTS) -->
+            <!-- 10. STATISTICS & ANALYSIS VIEW (RICH CHARTS) -->
             <VBox fx:id="viewStats" spacing="12.0" visible="false">
-                <Label text="System Metrics &amp; Performance Statistics" styleClass="section-title" />
+                <Label text="Flight Recorder Analytics &amp; Performance Metrics" styleClass="section-title" />
                 
                 <!-- Metric Summary Row -->
                 <GridPane hgap="12.0">
@@ -420,26 +496,19 @@
                         <RowConstraints percentHeight="50.0" />
                     </rowConstraints>
                     
-                    <!-- Chart 1: Status Breakdown (PieChart) -->
-                    <PieChart fx:id="chartExecutionStatus" title="Execution Outcome Distribution" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-
-                    <!-- Chart 2: Policy Decisions (PieChart) -->
-                    <PieChart fx:id="chartPolicyDecisions" title="Policy Decision Outcomes" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                    <!-- Chart 3: Tool Usage (BarChart) -->
-                    <BarChart fx:id="chartToolUsage" title="Tool Invocations Frequency" legendVisible="false" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <PieChart fx:id="chartExecutionStatus" title="Execution Outcomes Distribution" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <PieChart fx:id="chartPolicyDecisions" title="Policy Decision Clearance" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <BarChart fx:id="chartToolUsage" title="Tool &amp; Source Invocations Frequency" legendVisible="false" GridPane.columnIndex="0" GridPane.rowIndex="1">
                         <xAxis>
-                            <CategoryAxis fx:id="axisToolX" label="Tool" />
+                            <CategoryAxis fx:id="axisToolX" label="Tool / Source" />
                         </xAxis>
                         <yAxis>
                             <NumberAxis fx:id="axisToolY" label="Calls" />
                         </yAxis>
                     </BarChart>
-
-                    <!-- Chart 4: Events Distribution (BarChart) -->
                     <BarChart fx:id="chartEventDistribution" title="Black Box Events by Stage" legendVisible="false" GridPane.columnIndex="1" GridPane.rowIndex="1">
                         <xAxis>
-                            <CategoryAxis fx:id="axisEventX" label="Event Type" />
+                            <CategoryAxis fx:id="axisEventX" label="Stage Type" />
                         </xAxis>
                         <yAxis>
                             <NumberAxis fx:id="axisEventY" label="Count" />
@@ -448,13 +517,13 @@
                 </GridPane>
             </VBox>
 
-            <!-- 10. DEMO CONTROLS VIEW -->
+            <!-- 11. DEMO SCENARIOS VIEW -->
             <VBox fx:id="viewDemo" spacing="14.0" visible="false">
                 <Label text="Interactive Demonstration Scenarios" styleClass="section-title" />
-                <Label text="One-click execution triggers demonstrating all core features specified in the blueprint:" style="-fx-text-fill: #94a3b8;" />
+                <Label text="One-click execution triggers demonstrating all core features specified in the blueprint:" styleClass="header-subtitle" />
                 
                 <FlowPane hgap="10.0" vgap="10.0">
-                    <Button text="▶ 1. Run Standard Demo Agent" styleClass="btn-primary" onAction="#handleDemoStandard" />
+                    <Button text="🌐 1. Live Real-Time Web Search &amp; Hash Audit" styleClass="btn-primary" onAction="#handleDemoStandard" />
                     <Button text="⚡ 2. Simulate Tool Failure &amp; Auto-Retry" styleClass="btn-secondary" onAction="#handleDemoRetry" />
                     <Button text="🛡 3. Simulate Policy Denial (Security Interception)" styleClass="btn-secondary" onAction="#handleDemoPolicyDenied" />
                     <Button text="👥 4. Demonstrate Multi-Agent Delegation" styleClass="btn-secondary" onAction="#handleDemoDelegation" />
@@ -462,7 +531,7 @@
                     <Button text="🔒 6. Verify Hash Chain" styleClass="btn-success" onAction="#handleDemoVerifyChain" />
                 </FlowPane>
 
-                <Label text="Live Black Box Console Output:" style="-fx-text-fill: #e2e8f0; -fx-font-weight: bold; -fx-font-size: 12px;" />
+                <Label text="Live Black Box Flight Recorder Console:" styleClass="sub-heading" />
                 <TextArea fx:id="txtDemoConsole" VBox.vgrow="ALWAYS" editable="false" wrapText="true" styleClass="code-box" />
             </VBox>
 

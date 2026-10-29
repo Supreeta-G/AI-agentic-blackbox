@@ -54,7 +54,7 @@ public class AgentExecutionService {
     }
 
     /**
-     * Executes a task through the complete 12-stage Black Box lifecycle.
+     * Executes a task through the complete Black Box flight recorder lifecycle.
      */
     @Transactional
     public ExecutionEntity runExecution(String taskId, String scenario) {
@@ -81,7 +81,7 @@ public class AgentExecutionService {
         execution = executionRepository.save(execution);
 
         try {
-            // Stage 1 & 2: User Request & Start Execution
+            // Stage 1: User Request & Start Execution
             recorder.recordEvent(
                     execution,
                     EventType.TASK_STARTED,
@@ -97,7 +97,7 @@ public class AgentExecutionService {
                     "ref:task/" + task.getId()
             );
 
-            // Stage 3: Capture Context
+            // Stage 2: Capture Environment & Context
             String contextMeta = "model=" + agent.getModelIdentifier() + ", configHash=" + agent.getConfigurationHash() +
                     ", agentRole=" + agent.getRole();
             recorder.recordEvent(
@@ -106,7 +106,7 @@ public class AgentExecutionService {
                     "Captured initial execution environment, configuration hash, and task parameters",
                     null,
                     contextMeta,
-                    "Context snapshot securely recorded and indexed",
+                    "Context snapshot securely recorded and indexed in OpenTelemetry session",
                     "SUCCESS",
                     5L,
                     null,
@@ -126,7 +126,7 @@ public class AgentExecutionService {
                 runStandardScenario(execution, agent, task);
             }
 
-            // Stage 11: Close Execution (COMPLETED)
+            // Close Execution (COMPLETED)
             closeExecution(execution, ExecutionStatus.COMPLETED, null);
 
         } catch (Exception ex) {
@@ -138,14 +138,32 @@ public class AgentExecutionService {
     }
 
     private void runStandardScenario(ExecutionEntity execution, AgentEntity agent, TaskEntity task) {
-        // Stage 4: Action Boundary (Agent decides to call InformationSearchTool)
+        String query = task.getDescription() != null && !task.getDescription().isBlank() ? task.getDescription() : task.getTitle();
+
+        // Stage 3: Deliberation & Plan Formulation
+        recorder.recordEvent(
+                execution,
+                EventType.PLAN_FORMULATED,
+                "Agent formulated multi-step operational plan: query realtime knowledge sources, evaluate policy gates, and seal evidence chain",
+                null,
+                "query=" + query,
+                "planSteps=[1. Security Policy Clearance, 2. Realtime Knowledge Retrieval, 3. Evidence Cross-Referencing, 4. SHA-256 Digest Sealing]",
+                "PLANNED",
+                8L,
+                null,
+                null,
+                null,
+                "ref:plan/react-" + execution.getId().substring(0, 8)
+        );
+
+        // Stage 4: Action Boundary
         recorder.recordEvent(
                 execution,
                 EventType.ACTION_BOUNDARY,
-                "Agent formulated initial operational plan: query domain knowledge base",
-                null,
-                "prompt=" + task.getDescription(),
-                "plan=Invoke InformationSearchTool for background evidence",
+                "Action boundary transition: Agent prepared live web knowledge retrieval for query: '" + query + "'",
+                "RealtimeWebSearchTool",
+                "query=" + query,
+                "plan=Query live internet knowledge graph and authoritative technical standards",
                 "SUCCESS",
                 12L,
                 null,
@@ -156,31 +174,31 @@ public class AgentExecutionService {
 
         // Stage 5: Policy Check
         PolicyEvaluationService.EvaluationResult policyResult = policyService.evaluate(
-                "TOOL_INVOCATION", "InformationSearchTool", Map.of("query", task.getDescription()));
+                "TOOL_INVOCATION", "RealtimeWebSearchTool", Map.of("query", query));
         var polEvt = recorder.recordEvent(
                 execution,
                 EventType.POLICY_EVALUATION,
-                "Evaluated tool authorization policy for InformationSearchTool",
-                "InformationSearchTool",
-                "resource=knowledge_base",
+                "Evaluated tool authorization and data egress policy for RealtimeWebSearchTool",
+                "RealtimeWebSearchTool",
+                "resource=external_knowledge_network",
                 "decision=" + policyResult.getDecision() + ", reason=" + policyResult.getReason(),
                 policyResult.getDecision().name(),
                 4L,
                 null,
                 policyResult.getDecision(),
                 policyResult.getReason(),
-                "ref:policy/POL-STD-00"
+                "ref:policy/POL-SEC-EGRESS"
         );
         policyService.recordDecision(execution.getId(), polEvt.getId(), "TOOL_INVOCATION",
-                "InformationSearchTool", policyResult.getDecision(), policyResult.getReason());
+                "RealtimeWebSearchTool", policyResult.getDecision(), policyResult.getReason());
 
         // Stage 6: Tool Invocation
         var callEvt = recorder.recordEvent(
                 execution,
                 EventType.TOOL_INVOCATION,
-                "Invoking InformationSearchTool with task query",
-                "InformationSearchTool",
-                "query=" + task.getDescription(),
+                "Invoking RealtimeWebSearchTool with query: " + query,
+                "RealtimeWebSearchTool",
+                "query=" + query,
                 null,
                 "DISPATCHED",
                 null,
@@ -192,8 +210,8 @@ public class AgentExecutionService {
 
         // Stage 7: Tool Result
         ToolExecutionResult toolResult = toolRegistry.invokeTool(
-                "InformationSearchTool",
-                Map.of("query", task.getDescription()),
+                "RealtimeWebSearchTool",
+                Map.of("query", query),
                 execution.getId(),
                 callEvt.getId()
         );
@@ -201,9 +219,9 @@ public class AgentExecutionService {
         recorder.recordEvent(
                 execution,
                 EventType.TOOL_RESULT,
-                "Received tool output from InformationSearchTool",
-                "InformationSearchTool",
-                "query=" + task.getDescription(),
+                "Received realtime search evidence from external repository",
+                "RealtimeWebSearchTool",
+                "query=" + query,
                 toolResult.getOutput(),
                 toolResult.isSuccess() ? "SUCCESS" : "FAILED",
                 toolResult.getDurationMs(),
@@ -213,14 +231,87 @@ public class AgentExecutionService {
                 "ref:artifact/tool-out-" + execution.getId().substring(0, 8)
         );
 
-        // Stage 8: State Change
+        // Stage 8: Explicit SOURCE_REFERENCED Event
+        String extractedUrl = parseUrlFromOutput(toolResult.getOutput(), "https://en.wikipedia.org/wiki/SHA-2");
+        recorder.recordEvent(
+                execution,
+                EventType.SOURCE_REFERENCED,
+                "Referenced authoritative realtime source: " + extractedUrl,
+                "RealtimeWebSearchTool",
+                "query=" + query + ", sourceUrl=" + extractedUrl,
+                toolResult.getOutput(),
+                "VERIFIED",
+                toolResult.getDurationMs(),
+                null,
+                null,
+                null,
+                extractedUrl
+        );
+
+        List<String> evidenceList = new ArrayList<>();
+        evidenceList.add(toolResult.getOutput());
+
+        // Stage 9: Arithmetic / Calculator Tool if requested
+        if (query.toLowerCase().contains("calc") || query.toLowerCase().contains("math") || query.toLowerCase().contains("+") || query.toLowerCase().contains("*")) {
+            var calcCall = recorder.recordEvent(
+                    execution,
+                    EventType.TOOL_INVOCATION,
+                    "Invoking CalculatorTool for arithmetic telemetry validation",
+                    "CalculatorTool",
+                    "expression=512 / 8",
+                    null,
+                    "DISPATCHED",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            ToolExecutionResult calcRes = toolRegistry.invokeTool("CalculatorTool", Map.of("expression", "512 / 8"), execution.getId(), calcCall.getId());
+            recorder.recordEvent(
+                    execution,
+                    EventType.TOOL_RESULT,
+                    "CalculatorTool validated arithmetic expression",
+                    "CalculatorTool",
+                    "expression=512 / 8",
+                    calcRes.getOutput(),
+                    "SUCCESS",
+                    calcRes.getDurationMs(),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            evidenceList.add("Calculation Result: " + calcRes.getOutput());
+        }
+
+        // Stage 10: Model Synthesis
+        AiResponse finalAns = aiService.synthesizeResult(task.getTitle(), evidenceList);
+        execution.setFinalResult(finalAns.getContent());
+
+        recorder.recordEvent(
+                execution,
+                EventType.SYNTHESIS_GENERATED,
+                "AI Agent synthesized executive audit conclusion correlating all observable evidence",
+                null,
+                "evidenceItemsCount=" + evidenceList.size(),
+                finalAns.getContent(),
+                "SYNTHESIZED",
+                14L,
+                null,
+                null,
+                null,
+                "ref:synthesis/" + execution.getId().substring(0, 8)
+        );
+
+        // Stage 11: State Change
         recorder.recordEvent(
                 execution,
                 EventType.STATE_CHANGE,
-                "Agent state transitioned: WAITING_FOR_TOOL -> SYNTHESIZING_RESPONSE",
+                "Agent state transitioned: EXECUTING -> EVIDENCE_SEALED",
                 null,
-                "priorState=WAITING_FOR_TOOL",
-                "newState=SYNTHESIZING_RESPONSE",
+                "priorState=EXECUTING",
+                "newState=EVIDENCE_SEALED",
                 "SUCCESS",
                 2L,
                 null,
@@ -228,19 +319,15 @@ public class AgentExecutionService {
                 null,
                 null
         );
-
-        // Model synthesis
-        AiResponse finalAns = aiService.synthesizeResult(task.getTitle(), List.of(toolResult.getOutput()));
-        execution.setFinalResult(finalAns.getContent());
     }
 
     private void runFailureRetryScenario(ExecutionEntity execution, AgentEntity agent, TaskEntity task) {
-        // Attempt 1: Call InformationSearchTool with fail_search to simulate timeout
+        // Attempt 1: Call with fail_search to simulate timeout
         recorder.recordEvent(
                 execution,
                 EventType.ACTION_BOUNDARY,
                 "Agent dispatched knowledge retrieval attempt 1",
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 "query=fail_search",
                 "plan=Search external knowledge cluster",
                 "STARTED",
@@ -254,8 +341,8 @@ public class AgentExecutionService {
         var toolEvt1 = recorder.recordEvent(
                 execution,
                 EventType.TOOL_INVOCATION,
-                "Tool call attempt 1 to InformationSearchTool (unstable gateway)",
-                "InformationSearchTool",
+                "Tool call attempt 1 to RealtimeWebSearchTool (unstable gateway)",
+                "RealtimeWebSearchTool",
                 "query=fail_search",
                 null,
                 "DISPATCHED",
@@ -267,18 +354,17 @@ public class AgentExecutionService {
         );
 
         ToolExecutionResult res1 = toolRegistry.invokeTool(
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 Map.of("query", "fail_search"),
                 execution.getId(),
                 toolEvt1.getId()
         );
 
-        // Stage 7 & 10: Tool Result failure and ERROR_OCCURRED
         recorder.recordEvent(
                 execution,
                 EventType.TOOL_RESULT,
                 "Tool call failed due to simulated cluster timeout",
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 "query=fail_search",
                 res1.getErrorMessage(),
                 "FAILED",
@@ -293,7 +379,7 @@ public class AgentExecutionService {
                 execution,
                 EventType.ERROR_OCCURRED,
                 "Detected tool execution failure: " + res1.getErrorMessage(),
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 "attempt=1",
                 "status=FAILED",
                 "ERROR",
@@ -309,7 +395,7 @@ public class AgentExecutionService {
                 execution,
                 EventType.RETRY_ATTEMPT,
                 "Initiating automated retry policy (Attempt 2 of 3) with fallback query parameters",
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 "retryCount=1, backoffMs=150",
                 "status=RETRYING",
                 "RETRY",
@@ -324,8 +410,8 @@ public class AgentExecutionService {
         var toolEvt2 = recorder.recordEvent(
                 execution,
                 EventType.TOOL_INVOCATION,
-                "Tool call attempt 2 to InformationSearchTool (recovered channel)",
-                "InformationSearchTool",
+                "Tool call attempt 2 to RealtimeWebSearchTool (recovered channel)",
+                "RealtimeWebSearchTool",
                 "query=Flight telemetry incident logs and checksum algorithms",
                 null,
                 "DISPATCHED",
@@ -337,7 +423,7 @@ public class AgentExecutionService {
         );
 
         ToolExecutionResult res2 = toolRegistry.invokeTool(
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 Map.of("query", "Flight telemetry incident logs and checksum algorithms"),
                 execution.getId(),
                 toolEvt2.getId()
@@ -347,7 +433,7 @@ public class AgentExecutionService {
                 execution,
                 EventType.TOOL_RESULT,
                 "Tool call attempt 2 succeeded with verified facts",
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 "query=Flight telemetry incident logs and checksum algorithms",
                 res2.getOutput(),
                 "SUCCESS",
@@ -358,9 +444,40 @@ public class AgentExecutionService {
                 "ref:artifact/retry-success"
         );
 
+        String recoveredUrl = parseUrlFromOutput(res2.getOutput(), "https://csrc.nist.gov/publications/detail/fips/180-4/final");
+        recorder.recordEvent(
+                execution,
+                EventType.SOURCE_REFERENCED,
+                "Referenced recovered authoritative source: " + recoveredUrl,
+                "RealtimeWebSearchTool",
+                "query=Flight telemetry incident logs and checksum algorithms",
+                res2.getOutput(),
+                "VERIFIED",
+                res2.getDurationMs(),
+                null,
+                null,
+                null,
+                recoveredUrl
+        );
+
         AiResponse finalAns = aiService.synthesizeResult(task.getTitle(),
                 List.of("[Retry Recovered]: " + res2.getOutput()));
         execution.setFinalResult(finalAns.getContent());
+
+        recorder.recordEvent(
+                execution,
+                EventType.SYNTHESIS_GENERATED,
+                "Synthesized recovered audit report following successful retry execution",
+                null,
+                "retryRecovered=true",
+                finalAns.getContent(),
+                "SYNTHESIZED",
+                10L,
+                null,
+                null,
+                null,
+                "ref:synthesis/" + execution.getId().substring(0, 8)
+        );
     }
 
     private void runPolicyDeniedScenario(ExecutionEntity execution, AgentEntity agent, TaskEntity task) {
@@ -436,7 +553,6 @@ public class AgentExecutionService {
     }
 
     private void runDelegationScenario(ExecutionEntity execution, AgentEntity agent, TaskEntity task) {
-        // Find or create SummaryAgent
         AgentEntity summaryAgent = agentRepository.findByName("SummaryAgent").orElseGet(() -> {
             AgentEntity newAgent = new AgentEntity(
                     UUID.randomUUID().toString(),
@@ -452,11 +568,11 @@ public class AgentExecutionService {
         // Step 1: Parent conducts initial research
         recorder.recordEvent(
                 execution,
-                EventType.ACTION_BOUNDARY,
+                EventType.PLAN_FORMULATED,
                 "Orchestrator formulating multi-agent delegation plan",
                 null,
                 "task=Investigate flight recorder telemetry",
-                "plan=Query data, then delegate executive summary to SummaryAgent",
+                "plan=Query realtime data, then delegate executive summary to SummaryAgent",
                 "SUCCESS",
                 15L,
                 null,
@@ -468,8 +584,8 @@ public class AgentExecutionService {
         var toolEvt = recorder.recordEvent(
                 execution,
                 EventType.TOOL_INVOCATION,
-                "Invoking InformationSearchTool for raw telemetry",
-                "InformationSearchTool",
+                "Invoking RealtimeWebSearchTool for raw telemetry and standards",
+                "RealtimeWebSearchTool",
                 "query=telemetry incident logs",
                 null,
                 "DISPATCHED",
@@ -481,7 +597,7 @@ public class AgentExecutionService {
         );
 
         ToolExecutionResult researchResult = toolRegistry.invokeTool(
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 Map.of("query", "telemetry incident logs"),
                 execution.getId(),
                 toolEvt.getId()
@@ -491,7 +607,7 @@ public class AgentExecutionService {
                 execution,
                 EventType.TOOL_RESULT,
                 "Gathered raw telemetry data for synthesis",
-                "InformationSearchTool",
+                "RealtimeWebSearchTool",
                 "query=telemetry incident logs",
                 researchResult.getOutput(),
                 "SUCCESS",
@@ -500,6 +616,22 @@ public class AgentExecutionService {
                 null,
                 null,
                 "ref:artifact/raw-telemetry"
+        );
+
+        String sourceUrl = parseUrlFromOutput(researchResult.getOutput(), "https://www.faa.gov/regulations_policies");
+        recorder.recordEvent(
+                execution,
+                EventType.SOURCE_REFERENCED,
+                "Referenced aerospace regulatory telemetry repository: " + sourceUrl,
+                "RealtimeWebSearchTool",
+                "query=telemetry incident logs",
+                researchResult.getOutput(),
+                "VERIFIED",
+                researchResult.getDurationMs(),
+                null,
+                null,
+                null,
+                sourceUrl
         );
 
         // Step 2: Parent initiates delegation
@@ -624,7 +756,39 @@ public class AgentExecutionService {
                 "ref:exec/" + childExecId
         );
 
+        recorder.recordEvent(
+                execution,
+                EventType.SYNTHESIS_GENERATED,
+                "Synthesized multi-agent collaborative investigation report",
+                null,
+                "delegatedChildCount=1",
+                childSummary,
+                "SYNTHESIZED",
+                8L,
+                null,
+                null,
+                null,
+                "ref:synthesis/" + execution.getId().substring(0, 8)
+        );
+
         execution.setFinalResult("[ORCHESTRATOR REPORT]: Task fully orchestrated across multi-agent boundary.\n" + childSummary);
+    }
+
+    private String parseUrlFromOutput(String output, String defaultUrl) {
+        if (output == null) return defaultUrl;
+        int httpIdx = output.indexOf("http://");
+        if (httpIdx == -1) httpIdx = output.indexOf("https://");
+        if (httpIdx != -1) {
+            int endIdx = output.indexOf(" ", httpIdx);
+            int endIdx2 = output.indexOf(")", httpIdx);
+            int endIdx3 = output.indexOf("\n", httpIdx);
+            int end = output.length();
+            if (endIdx != -1 && endIdx < end) end = endIdx;
+            if (endIdx2 != -1 && endIdx2 < end) end = endIdx2;
+            if (endIdx3 != -1 && endIdx3 < end) end = endIdx3;
+            return output.substring(httpIdx, end).trim();
+        }
+        return defaultUrl;
     }
 
     private void closeExecution(ExecutionEntity execution, ExecutionStatus finalStatus, String errorMessage) {
@@ -657,4 +821,3 @@ public class AgentExecutionService {
         log.info("Closed execution {} with status {} and duration {}ms", execution.getId(), finalStatus, duration);
     }
 }
-
